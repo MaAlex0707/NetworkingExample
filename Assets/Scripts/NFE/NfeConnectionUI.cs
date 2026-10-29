@@ -76,6 +76,8 @@ namespace NetworkingLab.NFE
             SetStatus($"Server endpoint prepared on UDP {ReadPort()}");
             // STUDENT TODO NFE-01: obtain NetworkStreamDriver from ServerWorld and call
             // Listen(NetworkEndpoint.AnyIpv4.WithPort(ReadPort())).
+            var driverEntity = server.EntityManager.CreateEntityQuery(typeof(NetworkStreamDriver)).GetSingletonEntity();
+            server.EntityManager.GetComponentDataRW<NetworkStreamDriver>(driverEntity).ValueRW.Listen(NetworkEndpoint.AnyIpv4.WithPort(ReadPort()));
         }
 
         public void ConnectClient()
@@ -91,6 +93,8 @@ namespace NetworkingLab.NFE
             SetStatus($"Client endpoint prepared for {addressInput.text.Trim()}:{ReadPort()}");
             // STUDENT TODO NFE-01: obtain NetworkStreamDriver from ClientWorld and call
             // Connect(client.EntityManager, endpoint). The endpoint above is ready to use.
+            var driverEntity = client.EntityManager.CreateEntityQuery(typeof(NetworkStreamDriver)).GetSingletonEntity();
+            client.EntityManager.GetComponentDataRW<NetworkStreamDriver>(driverEntity).ValueRW.Connect(client.EntityManager, endpoint);
         }
 
         public void StartHost()

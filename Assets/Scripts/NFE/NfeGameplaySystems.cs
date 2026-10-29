@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 using UnityEngine.InputSystem;
+using NetworkingLab.PowerUp;
 
 namespace NetworkingLab.NFE
 {
@@ -40,6 +41,17 @@ namespace NetworkingLab.NFE
         {
             // STUDENT TODO NFE-02: mark the connection InGame and send NfeGoInGameRequest.
             // Use an EntityCommandBuffer and SendRpcCommandRequest targeted at the connection.
+            EntityCommandBuffer ecb = new(Allocator.Temp);
+            foreach (var (_, connection) in SystemAPI.Query<RefRO<NetworkId>>()
+                .WithEntityAccess().WithNone<NetworkStreamInGame>())
+            {
+                ecb.AddComponent<NetworkStreamInGame>(connection);
+                Entity request = ecb.CreateEntity();
+                ecb.AddComponent(request, new NfeGoInGameRequest());
+                ecb.AddComponent(request, new SendRpcCommandRequest { TargetConnection = connection });
+            }
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
     }
 
@@ -58,6 +70,30 @@ namespace NetworkingLab.NFE
         {
             // STUDENT TODO NFE-02: receive NfeGoInGameRequest, instantiate PlayerPrefab,
             // assign GhostOwner/PlayerNumber, and link the player to its connection.
+            EntityCommandBuffer ecb = new(Allocator.Temp);
+            Entity prefab = SystemAPI.GetSingleton<NfePlayerSpawner>().PlayerPrefab;
+            ComponentLookup<NetworkId> networkIds = state.GetComponentLookup<NetworkId>(true);
+            networkIds.Update(ref state);
+
+            foreach (var (request, rpcEntity) in SystemAPI
+                .Query<RefRO<ReceiveRpcCommandRequest>>()
+                .WithAll<NfeGoInGameRequest>().WithEntityAccess())
+            {
+                Entity connection = request.ValueRO.SourceConnection;
+                int networkId = networkIds[connection].Value;
+
+                ecb.AddComponent<NetworkStreamInGame>(connection);
+
+                // Instancia el prefab del jugador en el mundo ECS
+                Entity player = ecb.Instantiate(prefab);
+                ecb.SetComponent(player, new GhostOwner { NetworkId = networkId });
+                ecb.SetComponent(player, new NfePlayerState { PlayerNumber = networkId });
+                ecb.AppendToBuffer(connection, new LinkedEntityGroup { Value = player });
+
+                ecb.DestroyEntity(rpcEntity);
+            }
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
     }
 
@@ -109,10 +145,39 @@ namespace NetworkingLab.NFE
     [UpdateAfter(typeof(NfeMovementSystem))]
     public partial struct NfePowerUpServerSystem : ISystem
     {
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<NfePlayerSpawner>();
+        }
+
         public void OnUpdate(ref SystemState state)
         {
-            // STUDENT TODO NFE-04: detect InputEvent PowerUp on the server and broadcast
-            // NfePowerUpResultRpc containing the replicated PlayerNumber.
+            EntityCommandBuffer ecb = new(Allocator.Temp);
+
+            foreach (var (input, player) in SystemAPI
+                .Query<RefRO<NfePlayerInput>, RefRO<NfePlayerState>>()
+                .WithAll<Simulate>())
+            {
+                if (!input.ValueRO.PowerUp.IsSet) continue;
+
+                foreach (var (netId, connection) in SystemAPI
+                    .Query<RefRO<NetworkId>>()
+                    .WithEntityAccess())
+                {
+                    Entity rpc = ecb.CreateEntity();
+                    ecb.AddComponent(rpc, new NfePowerUpResultRpc
+                    {
+                        PlayerNumber = player.ValueRO.PlayerNumber
+                    });
+                    ecb.AddComponent(rpc, new SendRpcCommandRequest
+                    {
+                        TargetConnection = connection
+                    });
+                }
+            }
+
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
     }
 
@@ -123,6 +188,16 @@ namespace NetworkingLab.NFE
         {
             // STUDENT TODO NFE-04: consume NfePowerUpResultRpc on clients, raise
             // PowerUpEvents, then destroy the received RPC entity.
+            EntityCommandBuffer ecb = new(Allocator.Temp);
+            foreach (var (result, rpcEntity) in SystemAPI
+                .Query<RefRO<NfePowerUpResultRpc>>()
+                .WithAll<ReceiveRpcCommandRequest>().WithEntityAccess())
+            {
+                PowerUpEvents.RaiseActivated($"Player {result.ValueRO.PlayerNumber}");
+                ecb.DestroyEntity(rpcEntity);
+            }
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
     }
 }
