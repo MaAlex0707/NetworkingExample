@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 5283693766226254186}
   - component: {fileID: 7669699680910968561}
   - component: {fileID: 340681247271197182}
+  - component: {fileID: 3942848237777325789}
+  - component: {fileID: 6167020112834410207}
   m_Layer: 0
   m_Name: NGOPlayer
   m_TagString: Untagged
@@ -130,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 125552258
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -210,6 +212,49 @@ MonoBehaviour:
   playerLabel: {fileID: 4654143463240563739}
   moveSpeed: 5
   horizontalBounds: {x: 10.5, y: 7.5}
+--- !u!143 &3942848237777325789
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5009957809353947463}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1.8
+  m_Radius: 0.4
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.02
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6167020112834410207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5009957809353947463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be15f2da8f91781499ef39aee8ef6cf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NetworkingLab.NGO::PacPlayerState
+  ShowTopMostFoldoutHeaderGroup: 1
+  Score:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!1 &9141996730984690483
 GameObject:
   m_ObjectHideFlags: 0

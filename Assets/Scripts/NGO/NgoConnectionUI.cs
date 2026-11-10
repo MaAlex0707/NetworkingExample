@@ -26,7 +26,7 @@ namespace NetworkingLab.NGO
             localPlayerText = localPlayer;
         }
 
-        private void Awake()
+        private void Start()
         {
             manager = NetworkManager.Singleton;
             addressInput.text = ReadArgument("-address", "127.0.0.1");

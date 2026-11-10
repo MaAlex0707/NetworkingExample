@@ -43,7 +43,10 @@ namespace NetworkingLab.NGO
             {
                 int assigned = ++nextPlayerNumber;
                 playerNumber.Value = assigned;
+                var cc = GetComponent<CharacterController>();
+                cc.enabled = false;
                 transform.position = SpawnPosition(assigned);
+                cc.enabled = true;
             }
             ApplyIdentity(playerNumber.Value);
             if (IsOwner && IsClient)
@@ -65,7 +68,7 @@ namespace NetworkingLab.NGO
         {
             if (!IsOwner || !IsClient || moveAction == null) return;
             Vector2 move = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f);
-            ApplyLocalPreview(move);
+            //ApplyLocalPreview(move);
             SubmitMoveRpc(move);
             // STUDENT TODO NGO-01: send the owning client's movement input to the server.
             // Suggested next step: call SubmitMoveRpc(move) and compare preview vs. authority.
@@ -73,14 +76,12 @@ namespace NetworkingLab.NGO
 
         private void FixedUpdate()
         {
-            //if (!IsServer || !IsSpawned) return;
+            if (!IsServer || !IsSpawned) return;
             // STUDENT TODO NGO-02: validate pendingServerInput and move only on the server.
             // NetworkTransform is already attached and will replicate the authoritative result.
             Vector2 move = Vector2.ClampMagnitude(pendingServerInput, 1f);
-            Vector3 next = transform.position + new Vector3(move.x, 0f, move.y) * (moveSpeed * Time.fixedDeltaTime);
-            next.x = Mathf.Clamp(next.x, -horizontalBounds.x, horizontalBounds.x);
-            next.z = Mathf.Clamp(next.z, -horizontalBounds.y, horizontalBounds.y);
-            transform.position = next;
+            Vector3 delta = new Vector3(move.x, 0f, move.y) * (moveSpeed * Time.fixedDeltaTime);
+            GetComponent<CharacterController>().Move(delta);
         }
 
         [Rpc(SendTo.Server, Delivery = RpcDelivery.Unreliable, InvokePermission = RpcInvokePermission.Owner)]
@@ -91,9 +92,6 @@ namespace NetworkingLab.NGO
 
         private void OnPowerUpPerformed(InputAction.CallbackContext context)
         {
-            PowerUpEvents.RaiseActivated($"Player {Mathf.Max(1, playerNumber.Value)}");
-            //STUDENT TODO NGO-03: replace this local preview with a Server RPC that validates
-            //the request and a Client RPC that raises PowerUpEvents on all clients.
             RequestPowerUpRpc();
         }
 
@@ -137,8 +135,7 @@ namespace NetworkingLab.NGO
 
         private static Vector3 SpawnPosition(int number)
         {
-            Vector3[] positions = { new(-5f, .75f, 3f), new(5f, .75f, 3f), new(-5f, .75f, -3f), new(5f, .75f, -3f) };
-            return positions[(Mathf.Max(1, number) - 1) % positions.Length];
+            return MazeBuilder.GetSpawn(number);
         }
 
         private static Color PlayerColor(int number)
