@@ -74,6 +74,13 @@ namespace NetworkingLab.NGO
             // Suggested next step: call SubmitMoveRpc(move) and compare preview vs. authority.
         }
 
+        private void LateUpdate()
+        {
+            if (playerLabel == null) return;
+            playerLabel.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            playerLabel.transform.position = transform.position + new Vector3(0f, 1.6f, 0.95f);
+        }
+
         private void FixedUpdate()
         {
             if (!IsServer || !IsSpawned) return;
@@ -129,7 +136,12 @@ namespace NetworkingLab.NGO
         {
             if (number <= 0) return;
             gameObject.name = $"NGO Player {number}";
-            if (playerLabel != null) playerLabel.text = $"Player {number}";
+            if (playerLabel != null)
+            {
+                playerLabel.text = $"P{number}";
+                var mr = playerLabel.GetComponent<MeshRenderer>();
+                if (mr != null) mr.sortingOrder = 20;
+            }
             if (bodyRenderer != null) bodyRenderer.material.color = PlayerColor(number);
         }
 

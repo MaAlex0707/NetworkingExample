@@ -40,6 +40,7 @@ public class PacPlayerState : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void AnnouncePowerRpc(int number)
     {
+        AudioManager.Power();
         PowerUpEvents.RaiseActivated($"Player {number}");
     }
 
@@ -49,7 +50,25 @@ public class PacPlayerState : NetworkBehaviour
         invulnerableUntil = Time.time + 2f;
         ServerAddScore(-10);
         ServerRespawn();
+        HitSfxRpc();
         return true;
+    }
+    [Rpc(SendTo.Everyone)]
+    private void HitSfxRpc()
+    {
+        AudioManager.Hit();
+    }
+
+    public void ServerGhostEaten()
+    {
+        if (!IsServer) return;
+        GhostSfxRpc();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void GhostSfxRpc()
+    {
+        AudioManager.GhostEaten();
     }
 
     public void ServerRespawn()

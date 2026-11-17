@@ -9,6 +9,9 @@ public class MazeBuilder : MonoBehaviour
     [SerializeField] private Material wallMaterial;
     [SerializeField] private Material pelletMaterial;
     [SerializeField] private Material powerMaterial;
+    [SerializeField] private Sprite pelletSprite;
+    [SerializeField] private Sprite powerSprite;
+    [SerializeField] private Sprite wallSprite;
 
     // # pared   . pellet   o power pellet   (espacio) camino vacio
     static readonly string[] Map =
@@ -51,6 +54,12 @@ public class MazeBuilder : MonoBehaviour
 
     public static Vector3 GhostSpawn => CellToWorld(new Vector2Int(10, 7)) + Vector3.up * 0.75f;
 
+    public static Vector3 GetGhostSpawn(int index)
+    {
+        Vector2Int[] cells = { new(9, 7), new(11, 7) };
+        return CellToWorld(cells[index % cells.Length]) + Vector3.up * 0.75f;
+    }
+
     public static void SetPelletVisible(int i, bool visible)
     {
         if (i >= 0 && i < Pellets.Count) Pellets[i].SetActive(visible);
@@ -85,22 +94,34 @@ public class MazeBuilder : MonoBehaviour
 
                 if (ch == '#')
                 {
-                    GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    GameObject wall = new GameObject("Wall");
                     wall.transform.SetParent(transform);
                     wall.transform.position = pos + Vector3.up * 0.75f;
-                    wall.transform.localScale = new Vector3(Cell, 1f, Cell);
-                    if (wallMaterial != null) wall.GetComponent<Renderer>().material = wallMaterial;
+
+                    var box = wall.AddComponent<BoxCollider>();
+                    box.size = new Vector3(Cell, 1f, Cell);
+
+                    GameObject visual = new GameObject("Visual");
+                    visual.transform.SetParent(wall.transform, false);
+                    visual.transform.localPosition = Vector3.zero;
+                    visual.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+                    var sr = visual.AddComponent<SpriteRenderer>();
+                    sr.sprite = wallSprite;
+                    sr.sortingOrder = 0;
                 }
                 else if (ch == '.' || ch == 'o')
                 {
                     bool power = ch == 'o';
-                    GameObject p = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Destroy(p.GetComponent<Collider>());
+                    GameObject p = new GameObject(power ? "PowerPellet" : "Pellet");
                     p.transform.SetParent(transform);
                     p.transform.position = pos + Vector3.up * 0.75f;
-                    p.transform.localScale = Vector3.one * (power ? 0.5f : 0.2f);
-                    var mat = power ? powerMaterial : pelletMaterial;
-                    if (mat != null) p.GetComponent<Renderer>().material = mat;
+                    p.transform.rotation = Quaternion.Euler(90f, 0f, 0f); // acostado, mirando a la cámara
+                    p.transform.localScale = Vector3.one * 1.5f;
+
+                    var sr = p.AddComponent<SpriteRenderer>();
+                    sr.sprite = power ? powerSprite : pelletSprite;
+                    sr.sortingOrder = 1;
 
                     pelletAt[cell] = Pellets.Count;
                     Pellets.Add(p);

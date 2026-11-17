@@ -1,5 +1,97 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2759993883181649565
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5304598576262112981}
+  - component: {fileID: 5100443566877033536}
+  m_Layer: 0
+  m_Name: Sprite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5304598576262112981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2759993883181649565}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4316167879409608141}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!212 &5100443566877033536
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2759993883181649565}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 3
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!1 &5009957809353947463
 GameObject:
   m_ObjectHideFlags: 0
@@ -17,6 +109,7 @@ GameObject:
   - component: {fileID: 340681247271197182}
   - component: {fileID: 3942848237777325789}
   - component: {fileID: 6167020112834410207}
+  - component: {fileID: 3710959399061733277}
   m_Layer: 0
   m_Name: NGOPlayer
   m_TagString: Untagged
@@ -34,10 +127,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.75, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9101200891365515427}
+  - {fileID: 5304598576262112981}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &670305064089735368
@@ -47,7 +141,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5009957809353947463}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!136 &1082388987910303852
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -78,7 +172,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5009957809353947463}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -255,6 +349,42 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  Powered:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  powerSeconds: 6
+--- !u!114 &3710959399061733277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5009957809353947463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e931c440ebc12674b8936a5fbf4f451b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: NetworkingLab.NGO::PlayerSpriteView
+  spriteRenderer: {fileID: 5100443566877033536}
+  cyanFrames:
+  - {fileID: -22816100528025887, guid: ee9bb48e86d0e9c4998ee1f6d4e7c685, type: 3}
+  - {fileID: -898288601340639421, guid: 4c0ad47151ebeb44989a4f7dc63a1108, type: 3}
+  - {fileID: -7831552265199274863, guid: 774001ed1df911440bc46e8a5613e349, type: 3}
+  magentaFrames:
+  - {fileID: -668182509961456935, guid: 07407c109b82dd3469f1f770d4aeb1fd, type: 3}
+  - {fileID: 1614260443994785987, guid: 609fe0f8edb3edf4d9ce8f81b8bf1a18, type: 3}
+  - {fileID: 7789407203790903528, guid: 6b3876bdebea4864689e6278e10b548b, type: 3}
+  limeFrames:
+  - {fileID: -979334934823814858, guid: f4542a498da92aa43b96189778a8cd9b, type: 3}
+  - {fileID: -3024695815002428661, guid: a2ae81e49c97cd14baa743633110c06b, type: 3}
+  - {fileID: -9088873015805763003, guid: 02fcc275915b3794f9c861dcd9dac703, type: 3}
+  orangeFrames:
+  - {fileID: -6735150610634288995, guid: 21a2ed68a108c7f49a0c648e366bece5, type: 3}
+  - {fileID: -4867364130820036666, guid: bcc459c504e1e6842844f3ee8bfd60c3, type: 3}
+  - {fileID: 1987271859402113463, guid: 49d023bd650e23649abe2264c1cdc14b, type: 3}
+  spriteScale: 1.2
 --- !u!1 &9141996730984690483
 GameObject:
   m_ObjectHideFlags: 0
@@ -347,7 +477,7 @@ TextMesh:
   m_GameObject: {fileID: 9141996730984690483}
   m_Text: Player
   m_OffsetZ: 0
-  m_CharacterSize: 0.08
+  m_CharacterSize: 0.17
   m_LineSpacing: 1
   m_Anchor: 4
   m_Alignment: 1

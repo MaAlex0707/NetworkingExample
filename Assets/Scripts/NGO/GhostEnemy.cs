@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
 public class GhostEnemy : NetworkBehaviour
@@ -9,9 +10,20 @@ public class GhostEnemy : NetworkBehaviour
     [SerializeField] private Color normalColor = Color.red;
     [SerializeField] private Color scaredColor = Color.blue;
 
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Sprite[] redFrames;
+    [SerializeField] private Sprite[] violetFrames;
+    [SerializeField] private Sprite[] scaredFrames;
+
     public NetworkVariable<bool> Scared = new(false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
+
+    public NetworkVariable<int> Variant = new(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    private static int nextVariant;
 
     private static readonly Vector2Int[] Dirs =
     {
@@ -30,6 +42,8 @@ public class GhostEnemy : NetworkBehaviour
 
         if (!IsServer) return;
 
+        Variant.Value = nextVariant++ % 2;
+
         y = transform.position.y;
         cell = MazeBuilder.WorldToCell(transform.position);
         target = MazeBuilder.CellToWorld(cell) + Vector3.up * y;
@@ -38,6 +52,17 @@ public class GhostEnemy : NetworkBehaviour
     private void Paint(bool scared)
     {
         if (body != null) body.material.color = scared ? scaredColor : normalColor;
+    }
+
+    private void Update()
+    {
+        if (spriteRenderer == null) return;
+
+        Sprite[] frames = Scared.Value ? scaredFrames : (Variant.Value == 0 ? redFrames : violetFrames);
+        if (frames == null || frames.Length == 0) return;
+
+        int i = (int)(Time.time * 4f) % frames.Length;
+        spriteRenderer.sprite = frames[i];
     }
 
     private void FixedUpdate()
@@ -72,6 +97,7 @@ public class GhostEnemy : NetworkBehaviour
                 if (st.Powered.Value)
                 {
                     st.ServerAddScore(50);
+                    st.ServerGhostEaten();
                     ServerRespawn();
                 }
                 else
@@ -84,11 +110,12 @@ public class GhostEnemy : NetworkBehaviour
         if (Scared.Value != anyPowered) Scared.Value = anyPowered;
     }
 
-    private void ServerRespawn()
+    public void ServerRespawn()
     {
-        var nt = GetComponent<Unity.Netcode.Components.NetworkTransform>();
-        nt.Teleport(MazeBuilder.GhostSpawn, Quaternion.identity, transform.localScale);
-        cell = MazeBuilder.WorldToCell(MazeBuilder.GhostSpawn);
+        Vector3 sp = MazeBuilder.GetGhostSpawn(Variant.Value);
+        var nt = GetComponent<NetworkTransform>();
+        nt.Teleport(sp, Quaternion.identity, transform.localScale);
+        cell = MazeBuilder.WorldToCell(sp);
         target = MazeBuilder.CellToWorld(cell) + Vector3.up * y;
         dir = Vector2Int.zero;
     }
@@ -102,9 +129,10 @@ public class GhostEnemy : NetworkBehaviour
         }
         if (options.Count == 0) options.Add(-dir);
 
-        if (Random.value < 0.2f)
+        float wander = Variant.Value == 0 ? 0.2f : 0.45f;
+
+        if (Random.value < wander)
         {
-            // 20% de las veces vaga al azar para no ser tan predecible
             dir = options[Random.Range(0, options.Count)];
         }
         else
@@ -114,7 +142,7 @@ public class GhostEnemy : NetworkBehaviour
             foreach (var d in options)
             {
                 float dist = (MazeBuilder.CellToWorld(cell + d) - p).sqrMagnitude;
-                if (Scared.Value) dist = -dist; // asustado: huye
+                if (Scared.Value) dist = -dist;
                 if (dist < best) { best = dist; dir = d; }
             }
         }

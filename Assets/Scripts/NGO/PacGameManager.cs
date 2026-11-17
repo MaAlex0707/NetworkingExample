@@ -1,15 +1,12 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections;
-using NetworkingLab.PowerUp;
 
 public class PacGameManager : NetworkBehaviour
 {
-    // Un bool por pellet: true = ya fue comido. Se sincroniza solo, incluso para quien entra tarde.
     private NetworkList<bool> eaten;
     [SerializeField] private NetworkObject ghostPrefab;
     [SerializeField] private int ghostCount = 2;
-    private int remaining;
     private bool roundOver;
 
     private void Awake()
@@ -24,17 +21,15 @@ public class PacGameManager : NetworkBehaviour
         if (IsServer)
         {
             for (int i = 0; i < MazeBuilder.Pellets.Count; i++) eaten.Add(false);
-            remaining = MazeBuilder.Pellets.Count;
 
             for (int i = 0; i < ghostCount; i++)
             {
-                var ghost = Instantiate(ghostPrefab, MazeBuilder.GhostSpawn, Quaternion.identity);
+                var ghost = Instantiate(ghostPrefab, MazeBuilder.GetGhostSpawn(i), Quaternion.identity);
                 ghost.Spawn();
             }
         }
         else
         {
-            // Cliente que entra tarde: oculta los pellets que ya estaban comidos
             for (int i = 0; i < eaten.Count; i++) MazeBuilder.SetPelletVisible(i, !eaten[i]);
         }
     }
@@ -49,7 +44,15 @@ public class PacGameManager : NetworkBehaviour
         if (e.Type == NetworkListEvent<bool>.EventType.Value)
         {
             MazeBuilder.SetPelletVisible(e.Index, !e.Value);
+            if (e.Value) AudioManager.Chomp();
         }
+    }
+
+    private int RemainingPellets()
+    {
+        int n = 0;
+        for (int i = 0; i < eaten.Count; i++) if (!eaten[i]) n++;
+        return n;
     }
 
     private void FixedUpdate()
@@ -65,7 +68,6 @@ public class PacGameManager : NetworkBehaviour
             if (MazeBuilder.TryGetPellet(cell, out int index) && !eaten[index])
             {
                 eaten[index] = true;
-                remaining--;
                 var state = player.GetComponent<PacPlayerState>();
                 if (state != null)
                 {
@@ -80,9 +82,11 @@ public class PacGameManager : NetworkBehaviour
                     }
                 }
             }
-            if (remaining <= 0) StartCoroutine(EndRound());
         }
+
+        if (eaten.Count > 0 && RemainingPellets() == 0) StartCoroutine(EndRound());
     }
+
     private IEnumerator EndRound()
     {
         roundOver = true;
@@ -103,7 +107,6 @@ public class PacGameManager : NetworkBehaviour
         yield return new WaitForSeconds(10f);
 
         for (int i = 0; i < eaten.Count; i++) eaten[i] = false;
-        remaining = 5;
 
         foreach (var c in NetworkManager.Singleton.ConnectedClientsList)
         {
@@ -113,12 +116,17 @@ public class PacGameManager : NetworkBehaviour
             s.ServerRespawn();
         }
 
+        foreach (var g in FindObjectsByType<GhostEnemy>(FindObjectsSortMode.None))
+            g.ServerRespawn();
+
         roundOver = false;
     }
 
     [Rpc(SendTo.Everyone)]
+
     private void AnnounceWinnerRpc(int number, int score)
     {
+        AudioManager.Win();
         if (RoundMessageUI.Instance != null)
             RoundMessageUI.Instance.Show($"Player {number} gana con {score} puntos\nNueva ronda en 10 segundos", 9f);
     }
