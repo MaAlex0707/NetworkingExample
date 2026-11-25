@@ -29,7 +29,7 @@ namespace NetworkingLab.NGO
         private void Start()
         {
             manager = NetworkManager.Singleton;
-            addressInput.text = ReadArgument("-address", "127.0.0.1");
+            addressInput.text = ReadArgument("-address", "192.168.56.101");
             portInput.text = ReadArgument("-port", DefaultPort.ToString());
 
             manager.OnClientConnectedCallback += OnClientConnected;

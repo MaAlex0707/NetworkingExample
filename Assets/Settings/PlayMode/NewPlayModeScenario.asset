@@ -43,7 +43,7 @@ MonoBehaviour:
         m_RunMode: 0
         m_Settings:
           PlayerTag: 
-          RoleMask: 3
+          RoleMask: 1
           InitialScene: {fileID: 102900000, guid: 2dd8f4503da10452b819561eef7ccfa8, type: 3}
         m_Decorators: []
     - rid: 2383086284508233884
@@ -54,7 +54,7 @@ MonoBehaviour:
         m_RunMode: 0
         m_Settings:
           PlayerTag: 
-          RoleMask: 3
+          RoleMask: 1
           PlayerInstanceIndex: 1
           StreamLogsToMainEditor: 0
           LogsColor: {r: 0.3643, g: 0.581, b: 0.8679, a: 1}
